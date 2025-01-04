@@ -1,10 +1,19 @@
+import uvicorn
 from openai import OpenAI
 import logging
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
+from fastapi import FastAPI,Header,Body,Request
+from fastapi.responses import JSONResponse,HTMLResponse,FileResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.templating import Jinja2Templates
+from chat import chat_router
+from images import get_image
+# 导入拆分的路由
+import chat
+import images
 
 # 加载环境变量
 load_dotenv()
@@ -22,33 +31,66 @@ app.add_middleware(
 )
 
 # 配置日志
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
+
+# 配置模板路径
+templates = Jinja2Templates(directory="templates")
 
 # 定义请求体的数据模型
 class Message(BaseModel):
     message: str
 
-# 设置 OpenAI 客户端
-api_key = os.getenv("API_KEY")
-client = OpenAI(api_key=api_key)
+# 挂载 Koharu 文件夹作为静态文件
+app.mount("/Koharu", StaticFiles(directory="Koharu"), name="Koharu")
 
-# 创建聊天接口
-@app.post("/chat/")
-async def chat(data: Message):
-    # 打印收到的消息
-    logging.debug(f"Received message: {data.message}")
+# 注册聊天路由
+app.include_router(chat_router)
+@app.get("/")
+def index(username,req:Request):
+      return templates.TemplateResponse("index.html",context={"request":req,"name":username})
+@app.post("/login")
+def login(data:dict=Body(None)):
+    return {"data":data}
+@app.api_route("/signin",methods=("get","post","put"))
+def signin():
+    return {"msg":"signin sucess"}
+@app.get("/user")
+def user(id,token=Header(None)):
+    return {"id":id,"token":token}
+@app.get("/get_image/{image_name}")
+async def get_image_route(image_name: str):
+    """处理请求并返回图片"""
+    return get_image(image_name)
 
+@app.get("/user1")
+def user1():
+    return JSONResponse(content={"msg":"user"},status_code=202,headers={"name":"aaa"})
+@app.get("/user2")
+def user2():
+    html_content = """
+    <html>
+        <body><p style="color:red">Hello world</p></body>
+    </html>
+    """
+    return HTMLResponse(content=html_content,status_code=202,headers={"name":"aaa"})
+@app.get("/user3")
+def user3():
+    avatar = "Koharu/1.png"
+    return FileResponse(avatar,filename="1.png")
+
+
+@app.get("/list_files/")
+async def list_files():
     try:
-        # 调用 gpt-4o-mini 模型
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            store=True,  # 如果该模型需要这个参数
-            messages=[{"role": "user", "content": data.message}],
-        )
-        logging.debug(f"Received OpenAI response: {response}")
-        # 提取回复并返回
-        return {"reply": response.choices[0].message.content}
+        # 获取 Koharu 文件夹中的文件
+        files = os.listdir("Koharu")
+        # 过滤掉非文件（如子文件夹）
+        files = [f for f in files if os.path.isfile(os.path.join("Koharu", f))]
 
+        # 返回文件列表
+        return {"files": files}
     except Exception as e:
-        logging.error(f"Error during OpenAI request: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"OpenAI request failed: {str(e)}")
+        return {"error": str(e)}
+
+if __name__== '__main__':
+    uvicorn.run("main:app",reload=True)

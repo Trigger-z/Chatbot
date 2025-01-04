@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with GPT</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -45,7 +46,7 @@
     </style>
 </head>
 <body>
-    <h1>Welcome {{name}}</h1>
+    <h1>Chat with GPT</h1>
     <!-- 图片显示区域 -->
     <div id="image-container"></div>
     <!-- 聊天框 -->
@@ -91,12 +92,9 @@
                 chatBox.innerHTML += `<div class="message"><strong>GPT:</strong> ${data.reply}</div>`;
 
                 // 如果有图片链接，显示图片（将图片显示在聊天框上方）
-                if (data.image_data) {
-            const imageSrc = `data:image/png;base64,${data.image_data}`;
-            // 清空图片容器，防止多个图片堆叠
-            imageContainer.innerHTML = `<img src="${imageSrc}" alt="Image from GPT" style="max-width: 100%; height: auto;" />`;
-        }
-
+                if (data.image_url) {
+                    imageContainer.innerHTML = `<div><img src="${data.image_url}" alt="Image from GPT" style="max-width: 100%; height: auto;" /></div>`;
+                }
 
                 chatBox.scrollTop = chatBox.scrollHeight;
             } catch (error) {
