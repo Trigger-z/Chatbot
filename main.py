@@ -10,7 +10,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
 from chat import chat_router
-from images import get_image
 # 导入拆分的路由
 import chat
 import images
@@ -53,7 +52,7 @@ def login(data:dict=Body(None)):
     return {"data":data}
 @app.api_route("/signin",methods=("get","post","put"))
 def signin():
-    return {"msg":"signin sucess"}
+    return {"msg":"signin sss"}
 @app.get("/user")
 def user(id,token=Header(None)):
     return {"id":id,"token":token}

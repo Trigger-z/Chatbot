@@ -36,13 +36,11 @@ async def chat(data: Message):
 
         # 获取下一张图片
         image_url = get_next_image()
-        with open(image_url, "rb") as img_file:
-            img_data = img_file.read()
-            encoded_image = base64.b64encode(img_data).decode('utf-8')
-        # 返回回复和图片路径
+
+        # 返回消息和图片 URL
         return {
             "reply": response.choices[0].message.content,
-            "image_data": encoded_image  # 返回 base64 编码的图片数据
+            "image_url": image_url
         }
 
     except Exception as e:

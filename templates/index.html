@@ -43,10 +43,16 @@
             max-width: 100%;
             height: auto;
         }
+        #image-container img {
+            max-width: 100%;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
-    <h1>Chat with GPT</h1>
+    <h1>Welcome to GPT Chat</h1>
     <!-- 图片显示区域 -->
     <div id="image-container"></div>
     <!-- 聊天框 -->
@@ -91,10 +97,11 @@
                 // 在聊天框中显示 GPT 的回复
                 chatBox.innerHTML += `<div class="message"><strong>GPT:</strong> ${data.reply}</div>`;
 
-                // 如果有图片链接，显示图片（将图片显示在聊天框上方）
+                // 如果有图片链接，显示图片
                 if (data.image_url) {
-                    imageContainer.innerHTML = `<div><img src="${data.image_url}" alt="Image from GPT" style="max-width: 100%; height: auto;" /></div>`;
-                }
+                     imageContainer.innerHTML = `<img src="${data.image_url}" alt="Image from GPT" style="max-width: 400px; max-height: 400px;" />`;
+                    }
+
 
                 chatBox.scrollTop = chatBox.scrollHeight;
             } catch (error) {

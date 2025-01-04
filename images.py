@@ -8,21 +8,6 @@ app = FastAPI()
 IMAGE_DIRECTORY = "Koharu"  # 假设图片存放在这个文件夹下
 
 
-def get_image(image_name: str):
-    """根据图片名称获取图片的二进制数据并返回"""
-    try:
-        # 拼接图片的完整路径
-        image_path = os.path.join(IMAGE_DIRECTORY, image_name)
-
-        # 检查文件是否存在
-        if not os.path.exists(image_path):
-            raise HTTPException(status_code=404, detail="Image not found")
-
-        # 返回图片文件
-        return FileResponse(image_path, media_type="image/png")  # 根据实际图片类型修改 media_type
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
-
 # 获取所有图片路径
 def get_all_images():
     image_dir = "Koharu"
